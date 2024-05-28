@@ -12,16 +12,18 @@ document.getElementById('tokenForm').addEventListener('submit', function(e) {
     })
     .then(response => response.json())
     .then(data => {
-      document.getElementById('warning').innerText = data.message;
-      alert('Submitted successfully!');
-      document.getElementById('pageAccessToken').value = ''; // Clear input field after successful submission
+      if (data.message === 'This token is already saved.') {
+        alert('This token is already saved.');
+      } else {
+        alert('Submitted successfully!');
+      }
+      document.getElementById('pageAccessToken').value = ''; // Clear input field after submission
     })
     .catch(error => {
       console.error('Error:', error);
-      document.getElementById('warning').innerText = 'There was an error processing your request.';
+      alert('There was an error processing your request.');
     });
   } else {
-    document.getElementById('warning').innerText = 'Please enter a valid token.';
     alert('Please enter a valid token.');
   }
 });
