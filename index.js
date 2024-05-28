@@ -2,13 +2,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('request');
 const axios = require('axios');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 app.use(bodyParser.json());
+app.use(express.static('public')); // Serve static files from the 'public' directory
 
-// Set the verify token and page access token directly
+// Set the verify token directly
 const VERIFY_TOKEN = 'pagebot';
-const PAGE_ACCESS_TOKEN = 'EAAMMIEgswYQBO6ahqZBhFJkqshXjZBBCAx8i1pwmcKOloMJYoaaQ5CI82S2E8hsuF0iW7UgZAoao8lfCidxb3uP4eZCdYEnLPek7Hu7BF3BbXI6NfYX3V1MCGGmZCFZAf5yKSOAS7EvQYLOMrumwZC9wL21SqGCKBGzakF1NQzCrX3L3kqtZC45WjS096mubOyA2Y8Pe6dhAugZDZD';
 
 // Verify webhook
 app.get('/webhook', (req, res) => {
@@ -45,6 +47,37 @@ app.post('/webhook', (req, res) => {
     res.status(200).send('EVENT_RECEIVED');
   } else {
     res.sendStatus(404);
+  }
+});
+
+// Handle form submission
+app.post('/setToken', (req, res) => {
+  const token = req.body.token;
+  if (token) {
+    // Save the token to a JSON file (assuming tokens.json in the same directory)
+    const tokensFilePath = path.join(__dirname, 'tokens.json');
+    let tokens = [];
+    try {
+      // Load existing tokens from the file
+      tokens = require(tokensFilePath);
+    } catch (error) {
+      // File does not exist or is empty
+    }
+
+    // Add the new token to the tokens array
+    tokens.push({ token });
+
+    // Write the updated tokens array back to the file
+    fs.writeFile(tokensFilePath, JSON.stringify(tokens), (err) => {
+      if (err) {
+        console.error('Error saving token:', err);
+        res.status(500).json({ message: 'Internal server error.' });
+      } else {
+        res.json({ message: 'Page Access Token set and saved successfully!' });
+      }
+    });
+  } else {
+    res.status(400).json({ message: 'Please provide a valid token.' });
   }
 });
 
@@ -93,6 +126,18 @@ function handlePostback(event) {
 
 // Send a message to the sender
 function sendMessage(senderId, message) {
+  const tokensFilePath = path.join(__dirname, 'tokens.json');
+  let tokens = [];
+  try {
+    // Load existing tokens from the file
+    tokens = require(tokensFilePath);
+  } catch (error) {
+    // File does not exist or is empty
+  }
+
+  // Use the first token found in the tokens array
+  const PAGE_ACCESS_TOKEN = tokens.length > 0 ? tokens[0].token : '';
+
   request({
     url: 'https://graph.facebook.com/v13.0/me/messages',
     qs: { access_token: PAGE_ACCESS_TOKEN },
@@ -111,6 +156,11 @@ function sendMessage(senderId, message) {
     }
   });
 }
+
+// Serve the HTML page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // Start the server
 const PORT = process.env.PORT || 3000;

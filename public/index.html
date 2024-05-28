@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Bot Access Token</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Page AI Bot</h1>
+    <div class="tutorial">
+      <h3>Tutorial</h3>
+      <p>To set up your page bot, please enter the Page Access Token in the input field below and click "Sub<div><div></div></div>mit".</p>
+    </div>
+    <form id="tokenForm">
+      <label for="pageAccessToken">Page Access Token:</label>
+      <input type="text" id="pageAccessToken" name="pageAccessToken" required>
+      <button type="submit">Submit</button>
+    </form>
+    <div class="warning" id="warning"></div>
+  </div>
+
+  <div class="active-bots" id="activeBots">
+    Active page bots: <span id="botNumber">0</span>
+  </div>
+
+  <div class="theme-toggle">
+    <label for="themeSwitch">Toggle Dark Mode</label>
+    <input type="checkbox" id="themeSwitch">
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
