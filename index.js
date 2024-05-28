@@ -64,18 +64,26 @@ app.post('/setToken', (req, res) => {
       // File does not exist or is empty
     }
 
-    // Add the new token to the tokens array
-    tokens.push({ token });
+    // Check if the token already exists
+    const tokenExists = tokens.some(tokenObj => tokenObj.token === token);
 
-    // Write the updated tokens array back to the file
-    fs.writeFile(tokensFilePath, JSON.stringify(tokens), (err) => {
-      if (err) {
-        console.error('Error saving token:', err);
-        res.status(500).json({ message: 'Internal server error.' });
-      } else {
-        res.json({ message: 'Page Access Token set and saved successfully!' });
-      }
-    });
+    if (tokenExists) {
+      // If token already exists, send an alert and do not save the new token
+      res.status(200).json({ message: 'This token is already saved.' });
+    } else {
+      // Add the new token to the tokens array
+      tokens.push({ token });
+
+      // Write the updated tokens array back to the file
+      fs.writeFile(tokensFilePath, JSON.stringify(tokens, null, 2), (err) => {
+        if (err) {
+          console.error('Error saving token:', err);
+          res.status(500).json({ message: 'Internal server error.' });
+        } else {
+          res.json({ message: 'Page Access Token set and saved successfully!' });
+        }
+      });
+    }
   } else {
     res.status(400).json({ message: 'Please provide a valid token.' });
   }
@@ -124,35 +132,44 @@ function handlePostback(event) {
   sendMessage(senderId, { text: `You sent a postback with payload: ${payload}` });
 }
 
-// Send a message to the sender
+// Send a message to the sender using all tokens
 function sendMessage(senderId, message) {
   const tokensFilePath = path.join(__dirname, 'tokens.json');
-  let tokens = [];
-  try {
-    // Load existing tokens from the file
-    tokens = require(tokensFilePath);
-  } catch (error) {
-    // File does not exist or is empty
-  }
+  
+  // Load tokens from tokens.json
+  fs.readFile(tokensFilePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error reading tokens file:', err);
+      return;
+    }
 
-  // Use the first token found in the tokens array
-  const PAGE_ACCESS_TOKEN = tokens.length > 0 ? tokens[0].token : '';
+    try {
+      // Parse JSON data
+      const tokens = JSON.parse(data);
 
-  request({
-    url: 'https://graph.facebook.com/v13.0/me/messages',
-    qs: { access_token: PAGE_ACCESS_TOKEN },
-    method: 'POST',
-    json: {
-      recipient: { id: senderId },
-      message: message,
-    },
-  }, (error, response, body) => {
-    if (error) {
-      console.error('Error sending message:', error);
-    } else if (response.body.error) {
-      console.error('Error response:', response.body.error);
-    } else {
-      console.log('Message sent successfully:', body);
+      // Iterate over each token and send the message
+      tokens.forEach(tokenObj => {
+        const PAGE_ACCESS_TOKEN = tokenObj.token;
+        request({
+          url: 'https://graph.facebook.com/v13.0/me/messages',
+          qs: { access_token: PAGE_ACCESS_TOKEN },
+          method: 'POST',
+          json: {
+            recipient: { id: senderId },
+            message: message,
+          },
+        }, (error, response, body) => {
+          if (error) {
+            console.error('Error sending message:', error);
+          } else if (response.body.error) {
+            console.error('Error response:', response.body.error);
+          } else {
+            console.log('Message sent successfully:', body);
+          }
+        });
+      });
+    } catch (error) {
+      console.error('Error parsing tokens data:', error);
     }
   });
 }
