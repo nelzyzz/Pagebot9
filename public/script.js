@@ -27,7 +27,7 @@ document.getElementById('tokenForm').addEventListener('submit', function(e) {
 });
 
 // Fetch and display the number of active bots
-fetch('/getActiveBots')
+fetch('/getTotalBots')
   .then(response => response.json())
   .then(data => {
     document.getElementById('botNumber').innerText = data.botNumber;
@@ -35,12 +35,3 @@ fetch('/getActiveBots')
   .catch(error => {
     console.error('Error fetching active bots:', error);
   });
-
-/*// Toggle theme
-document.getElementById('themeSwitch').addEventListener('change', function() {
-  if (this.checked) {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  } else {
-    document.documentElement.setAttribute('data-theme', 'light');
-  }
-});*/
