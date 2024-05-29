@@ -1,18 +1,18 @@
-const { sendMessage, callSumiAPI } = require('./sumi'); // Adjust the path as needed
 const { callGeminiAPI } = require('./gemini')
 
-const triggers = ['gemini', 'hi', 'hello', 'help', 'how are you', 'what\'s up'];
+const { callSumiAPI } = require('./sumi');
+
+const triggers = ['hi', 'hello', 'help', 'how are you', 'what\'s up', 'gemini', 'sumi'];
 
 // Function to handle the help command
-function handleHelpCommand(pageId, sendMessage) {
-  const helpMessage = "Here are all available commands:\n- hi\n- hello\n- help\n- how are you\n- what's up\n- gemini";
-  sendMessage(pageId, { text: helpMessage });
+function handleHelpCommand(senderId) {
+  const helpMessage = "Here are all available commands:\n" + triggers.join("\n- ");
+  sendMessage(senderId, { text: helpMessage });
 }
 
 // Handle incoming messages
-function handleMessage(event, userTokenMap) {
+function handleMessage(event) {
   const senderId = event.sender.id;
-  const pageId = event.recipient.id; // Assuming the recipient ID is the page ID
   const messageText = event.message.text.toLowerCase();
 
   console.log('Received message:', messageText);
@@ -20,18 +20,18 @@ function handleMessage(event, userTokenMap) {
   if (triggers.some(trigger => messageText.includes(trigger))) {
     if (messageText.includes('help')) {
       console.log('Handling help command...');
-      handleHelpCommand(pageId, sendMessage);
+      handleHelpCommand(senderId);
     } else {
       console.log('Processing request...');
-      sendMessage(pageId, { text: 'Please wait, I am processing your request...' }, userTokenMap);
-      callSumiAPI(messageText, 'j86bwkwo-8hako-12C') // Provide your API key here
+      sendMessage(senderId, { text: 'Please wait, I am processing your request...' });
+      callSumiAPI(messageText, 'j86bwkwo-8hako-12C')
         .then(response => {
           console.log('API response:', response);
-          sendMessage(pageId, { text: response }, userTokenMap);
+          sendMessage(senderId, { text: response });
         })
         .catch(error => {
           console.error('Error calling Sumi API:', error);
-          sendMessage(pageId, { text: 'Sorry, there was an error processing your request.' }, userTokenMap);
+          sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' });
         });
     }
   }

@@ -1,6 +1,6 @@
-const { triggers } = require('./commands'); // Assuming triggers are defined in commands.js
+const { triggers } = require('./commands');
 
-function handleHelpCommand(senderId, sendMessage) {
+function handleHelpCommand(senderId) {
   const helpMessage = "Here are all available commands:\n" + triggers.join("\n- ");
   sendMessage(senderId, { text: helpMessage });
 }
