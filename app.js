@@ -24,7 +24,7 @@ app.get('/getActiveBots', async (req, res) => {
   }
 });
 
-// In-memory storage for user-token mapping
+// In-memory storage for page-token mapping
 const userTokenMap = {};
 
 // Middleware to verify webhook
@@ -68,24 +68,37 @@ app.post('/webhook', (req, res) => {
 // Endpoint to set token
 app.post('/setToken', async (req, res) => {
   const token = req.body.token;
-  if (token) {
-    const tokenFileName = `${token}.json`;
-    const tokenFilePath = path.join(__dirname, 'tokens', tokenFileName);
+  const pageId = req.body.pageId; // Expecting the pageId to be sent in the request body
+
+  if (token && pageId) {
+    const tokensDir = path.join(__dirname, 'tokens');
 
     try {
-      await fs.access(tokenFilePath);
-      res.status(200).json({ message: 'This token is already saved.' });
-    } catch (err) {
-      try {
-        await fs.writeFile(tokenFilePath, JSON.stringify({ token }));
-        res.json({ message: 'Page Access Token set and saved successfully!' });
-      } catch (writeErr) {
-        console.error('Error saving token:', writeErr);
-        res.status(500).json({ message: 'Internal server error.' });
+      const files = await fs.readdir(tokensDir);
+
+      // Check if token already exists
+      for (const file of files) {
+        const filePath = path.join(tokensDir, file);
+        const data = await fs.readFile(filePath, 'utf8');
+        const savedToken = JSON.parse(data).token;
+        if (savedToken === token) {
+          return res.status(400).json({ message: 'This token is already saved.' });
+        }
       }
+
+      const newTokenIndex = files.length + 1;
+      const tokenFileName = `token${newTokenIndex}.json`;
+      const tokenFilePath = path.join(tokensDir, tokenFileName);
+
+      await fs.writeFile(tokenFilePath, JSON.stringify({ token }));
+      userTokenMap[pageId] = token; // Update the in-memory map
+      res.json({ message: `Page Access Token set and saved successfully as ${tokenFileName}!` });
+    } catch (err) {
+      console.error('Error saving token:', err);
+      res.status(500).json({ message: 'Internal server error.' });
     }
   } else {
-    res.status(400).json({ message: 'Please provide a valid token.' });
+    res.status(400).json({ message: 'Please provide a valid token and page ID.' });
   }
 });
 
@@ -93,6 +106,7 @@ app.post('/setToken', async (req, res) => {
 function handlePostback(event) {
   const senderId = event.sender.id;
   const payload = event.postback.payload;
+  const pageId = event.recipient.id;
   sendMessage(senderId, { text: `You sent a postback with payload: ${payload}` }, userTokenMap);
 }
 

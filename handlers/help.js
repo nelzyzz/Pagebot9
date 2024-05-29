@@ -1,6 +1,7 @@
-// Example help command handler
+const { triggers } = require('./commands'); // Assuming triggers are defined in commands.js
+
 function handleHelpCommand(senderId, sendMessage) {
-  const helpMessage = "Here are some commands you can use:\n- hi\n- hello\n- help\n- how are you\n- what's up\n- gemini";
+  const helpMessage = "Here are all available commands:\n" + triggers.join("\n- ");
   sendMessage(senderId, { text: helpMessage });
 }
 
