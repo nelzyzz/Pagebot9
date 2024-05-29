@@ -5,13 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Page Bot Access Token</title>
   <link rel="stylesheet" type="text/css" href="styles.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav" style="margin-right: 80px;">
+        <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">Home<span class="sr-only">(current)</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/tutorial">Tutorial</a>
+        </ul>
+    </div>
+</nav>
+
   <div class="container">
     <h1>Page AI Bot</h1>
     <div class="tutorial">
-      <h3>Tutorial</h3>
-      <p>To set up your page bot, please enter the Page Access Token in the input field below and click "Submit."</p>
+      <p>To set up your page bot, please enter the Page Access Token in the input field below and click "Submit".</p>
     </div>
     <form id="tokenForm">
       <label for="pageAccessToken">Page Access Token:</label>
@@ -25,11 +44,14 @@
     Active page bots: <span id="botNumber">0</span>
   </div>
 
-  <div class="theme-toggle">
+ <!-- <div class="theme-toggle">
     <label for="themeSwitch">Toggle Dark Mode</label>
     <input type="checkbox" id="themeSwitch">
-  </div>
+  </div> -->
 
   <script src="script.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

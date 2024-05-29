@@ -8,7 +8,7 @@
   --tutorial-border-color: #17a2b8;
 }
 
-[data-theme="dark"] {
+/*[data-theme="dark"] {
   --bg-color: #333;
   --text-color: #f4f4f4;
   --input-bg-color: #555;
@@ -16,7 +16,7 @@
   --button-hover-bg-color: #555;
   --tutorial-bg-color: #555;
   --tutorial-border-color: #888;
-}
+}*/
 
 body {
   font-family: Arial, sans-serif;
@@ -24,6 +24,11 @@ body {
   padding: 20px;
   background-color: var(--bg-color);
   color: var(--text-color);
+}
+
+nav {
+  margin-bottom: 10px;
+  border-radius: 11px; 
 }
 
 .container {
@@ -100,12 +105,4 @@ button:hover {
   font-weight: bold;
 }
 
-.theme-toggle {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
 
-.theme-toggle label {
-  margin-right: 10px;
-}

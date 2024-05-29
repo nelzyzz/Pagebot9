@@ -12,18 +12,16 @@ document.getElementById('tokenForm').addEventListener('submit', function(e) {
     })
     .then(response => response.json())
     .then(data => {
-      if (data.message === 'This token is already saved.') {
-        alert('This token is already saved.');
-      } else {
-        alert('Submitted successfully!');
-      }
-      document.getElementById('pageAccessToken').value = ''; // Clear input field after submission
+      document.getElementById('warning').innerText = data.message;
+      alert('Submitted successfully!');
+      document.getElementById('pageAccessToken').value = ''; // Clear input field after successful submission
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('There was an error processing your request.');
+      document.getElementById('warning').innerText = 'There was an error processing your request.';
     });
   } else {
+    document.getElementById('warning').innerText = 'Please enter a valid token.';
     alert('Please enter a valid token.');
   }
 });
@@ -38,11 +36,11 @@ fetch('/getActiveBots')
     console.error('Error fetching active bots:', error);
   });
 
-// Toggle theme
+/*// Toggle theme
 document.getElementById('themeSwitch').addEventListener('change', function() {
   if (this.checked) {
     document.documentElement.setAttribute('data-theme', 'dark');
   } else {
     document.documentElement.setAttribute('data-theme', 'light');
   }
-});
+});*/
