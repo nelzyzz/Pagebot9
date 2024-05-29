@@ -11,6 +11,19 @@ app.use(express.static('public'));
 
 const VERIFY_TOKEN = 'pagebot';
 
+// Endpoint to get active bot count
+app.get('/getActiveBots', async (req, res) => {
+  try {
+    const tokensDir = path.join(__dirname, 'tokens');
+    const files = await fs.readdir(tokensDir);
+    const activeBotCount = files.length;
+    res.json({ botNumber: activeBotCount });
+  } catch (err) {
+    console.error('Error fetching active bot count:', err);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
 // In-memory storage for user-token mapping
 const userTokenMap = {};
 
