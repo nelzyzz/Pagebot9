@@ -95,7 +95,8 @@ Before starting, ensure you have a Facebook Page. If you don't have one, create 
 
 ## Credits
   - This file is created by ChatGPT, Blackbox AI, and me (Adrian)
-  - Credits to Liane Cagara for Sumi API
+  - Credits to Liane Cagara (https://liaspark.chatbotcommunity.ltd) for Sumi API
+  - Credits to Deku (https://deku-rest-api-3ijr.onrender.com) for Claude3, Gpt4, Lyrics, Spotify, SmsBomb, and Spotify APIs
     
   **Note!**
    - You are free to modify this file. You can do whatever you want.

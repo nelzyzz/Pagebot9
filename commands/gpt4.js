@@ -1,27 +1,28 @@
-const { callGeminiAPI } = require('../utils/callGeminiAPI');
+const axios = require('axios');
 
 module.exports = {
-  name: 'gemini',
-  description: 'Ask a question to the Gemini AI',
-  author: 'ChatGPT',
+  name: 'gpt4',
+  description: 'Ask a question to GPT-4',
+  author: 'Deku (rest api)',
   async execute(senderId, args, pageAccessToken, sendMessage) {
     const prompt = args.join(' ');
     try {
-      sendMessage(senderId, { text: 'Please wait, I am processing your request...' }, pageAccessToken);
-      const response = await callGeminiAPI(prompt);
+      const apiUrl = `https://deku-rest-api-3ijr.onrender.com/gpt4?prompt=${encodeURIComponent(prompt)}&uid=${senderId}`;
+      const response = await axios.get(apiUrl);
+      const text = response.data.gpt4;
 
       // Split the response into chunks if it exceeds 2000 characters
       const maxMessageLength = 2000;
-      if (response.length > maxMessageLength) {
-        const messages = splitMessageIntoChunks(response, maxMessageLength);
+      if (text.length > maxMessageLength) {
+        const messages = splitMessageIntoChunks(text, maxMessageLength);
         for (const message of messages) {
           sendMessage(senderId, { text: message }, pageAccessToken);
         }
       } else {
-        sendMessage(senderId, { text: response }, pageAccessToken);
+        sendMessage(senderId, { text }, pageAccessToken);
       }
     } catch (error) {
-      console.error('Error calling Gemini API:', error);
+      console.error('Error calling GPT-4 API:', error);
       sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' }, pageAccessToken);
     }
   }

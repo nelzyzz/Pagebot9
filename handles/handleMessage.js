@@ -11,18 +11,6 @@ for (const file of commandFiles) {
   commands.set(command.name, command);
 }
 
-const helpCommand = {
-  name: 'help',
-  description: 'Show available commands',
-  author: 'System', // Author for the help command
-  execute(senderId, args, pageAccessToken, sendMessage) {
-    const helpMessage = `Here are the available commands:\n\n${[...commands.values()].map(cmd => `${cmd.name} - ${cmd.description} - ${cmd.author}`).join('\n')}`;
-    sendMessage(senderId, { text: helpMessage }, pageAccessToken);
-  }
-};
-
-commands.set(helpCommand.name, helpCommand);
-
 async function handleMessage(event, pageAccessToken) {
   const senderId = event.sender.id;
   const messageText = event.message.text.toLowerCase();
@@ -32,7 +20,12 @@ async function handleMessage(event, pageAccessToken) {
 
   if (commands.has(commandName)) {
     const command = commands.get(commandName);
-    await command.execute(senderId, args, pageAccessToken, sendMessage);
+    try {
+      await command.execute(senderId, args, pageAccessToken, sendMessage);
+    } catch (error) {
+      console.error(`Error executing command ${commandName}:`, error);
+      sendMessage(senderId, { text: 'There was an error executing that command.' }, pageAccessToken);
+    }
   }
 }
 
