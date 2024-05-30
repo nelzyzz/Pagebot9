@@ -3,6 +3,10 @@
 
 # Tutorial
 
+```
+npm install express body-parser fs axios
+```
+
 ## Prerequisites
 Before starting, ensure you have a Facebook Page. If you don't have one, create a Facebook Page first.
 

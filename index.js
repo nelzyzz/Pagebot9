@@ -1,18 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const fs = require('fs');
 const { handleMessage } = require('./handles/handleMessage');
 const { handlePostback } = require('./handles/handlePostback');
-const fs = require('fs');
 
 const app = express();
 app.use(bodyParser.json());
 
-// Set the verify token and page access token
 const VERIFY_TOKEN = 'pagebot';
-// Read the token from the file
-const PAGE_ACCESS_TOKEN = fs.readFileSync('token.txt', 'utf8');
 
-// Verify that the verify token matches
+const PAGE_ACCESS_TOKEN = fs.readFileSync('token.txt', 'utf8').trim();
+
 app.get('/webhook', (req, res) => {
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
@@ -28,7 +26,6 @@ app.get('/webhook', (req, res) => {
   }
 });
 
-// Handle messages and postbacks
 app.post('/webhook', (req, res) => {
   const body = req.body;
 
@@ -49,7 +46,6 @@ app.post('/webhook', (req, res) => {
   }
 });
 
-// Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

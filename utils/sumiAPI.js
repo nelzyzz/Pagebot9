@@ -3,25 +3,19 @@ const axios = require('axios');
 const apiKey = 'j86bwkwo-8hako-12C'; // This is your API Key
 const apiUrl = 'https://liaspark.chatbotcommunity.ltd/@LianeAPI_Reworks/api/sumi'; // API URL
 
-function sumiAPICommand(question) {
-  return new Promise((resolve, reject) => {
-    axios.get(apiUrl, {
+async function sumiAPICommand(question) {
+  try {
+    const response = await axios.get(apiUrl, {
       params: {
         key: apiKey,
         query: question,
       }
-    }).then(response => {
-      const message = response.data.message;
-      if (message.length <= 2000) {
-        resolve(message);
-      } else {
-        const chunks = splitMessageIntoChunks(message);
-        resolve(chunks);
-      }
-    }).catch(error => {
-      reject(error);
     });
-  });
+    const message = response.data.message;
+    return message.length <= 2000 ? message : splitMessageIntoChunks(message);
+  } catch (error) {
+    throw new Error(`Sumi API call failed: ${error.message}`);
+  }
 }
 
 function splitMessageIntoChunks(message) {
