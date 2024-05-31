@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std/http/server.ts';
 import { readFileSync } from 'https://deno.land/std/fs/mod.ts';
-import { handleMessage } from './handles/handleMessage.ts';
-import { handlePostback } from './handles/handlePostback.ts';
+import { handleMessage } from './handles/handleMessage.js';
+import { handlePostback } from './handles/handlePostback.js';
 
 const server = serve({ port: 3000 });
 const VERIFY_TOKEN = 'pagebot';
