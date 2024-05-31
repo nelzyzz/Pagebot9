@@ -39,4 +39,4 @@ jobs:
         with:
           project: "pagebot"
           entrypoint: "index.ts"
-          root: "Pagebot"
+          root: ""
