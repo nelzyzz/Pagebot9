@@ -38,5 +38,5 @@ jobs:
         uses: denoland/deployctl@v1
         with:
           project: "pagebot"
-          entrypoint: "index.js"
+          entrypoint: "index2.mjs"
           root: ""
