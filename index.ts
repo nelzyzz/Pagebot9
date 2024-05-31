@@ -1,52 +1,48 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import fs from 'fs';
-import { handleMessage } from './handles/handleMessage';
-import { handlePostback } from './handles/handlePostback';
+import { serve } from 'https://deno.land/std/http/server.ts';
+import { readFileSync } from 'https://deno.land/std/fs/mod.ts';
+import { handleMessage } from './handles/handleMessage.ts';
+import { handlePostback } from './handles/handlePostback.ts';
 
-const app = express();
-app.use(bodyParser.json());
-
+const server = serve({ port: 3000 });
 const VERIFY_TOKEN = 'pagebot';
 
-const PAGE_ACCESS_TOKEN = fs.readFileSync('token.txt', 'utf8').trim();
+const PAGE_ACCESS_TOKEN = readFileSync('token.txt');
 
-app.get('/webhook', (req, res) => {
-  const mode = req.query['hub.mode'];
-  const token = req.query['hub.verify_token'];
-  const challenge = req.query['hub.challenge'];
+console.log(`Server is running on port 3000`);
 
-  if (mode && token) {
-    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-      console.log('WEBHOOK_VERIFIED');
-      res.status(200).send(challenge);
-    } else {
-      res.sendStatus(403);
-    }
-  }
-});
+for await (const req of server) {
+    if (req.method === 'GET' && req.url === '/webhook') {
+        const params = new URLSearchParams(req.url.split('?')[1] || '');
+        const mode = params.get('hub.mode');
+        const token = params.get('hub.verify_token');
+        const challenge = params.get('hub.challenge');
 
-app.post('/webhook', (req, res) => {
-  const body = req.body;
-
-  if (body.object === 'page') {
-    body.entry.forEach(entry => {
-      entry.messaging.forEach(event => {
-        if (event.message) {
-          handleMessage(event, PAGE_ACCESS_TOKEN);
-        } else if (event.postback) {
-          handlePostback(event, PAGE_ACCESS_TOKEN);
+        if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+            console.log('WEBHOOK_VERIFIED');
+            req.respond({ status: 200, body: challenge });
+        } else {
+            req.respond({ status: 403, body: 'Forbidden' });
         }
-      });
-    });
+    } else if (req.method === 'POST' && req.url === '/webhook') {
+        const body = await Deno.readAll(req.body);
+        const bodyString = new TextDecoder().decode(body);
+        const data = JSON.parse(bodyString);
 
-    res.status(200).send('EVENT_RECEIVED');
-  } else {
-    res.sendStatus(404);
-  }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+        if (data.object === 'page') {
+            for (const entry of data.entry) {
+                for (const event of entry.messaging) {
+                    if (event.message) {
+                        handleMessage(event, PAGE_ACCESS_TOKEN);
+                    } else if (event.postback) {
+                        handlePostback(event, PAGE_ACCESS_TOKEN);
+                    }
+                }
+            }
+            req.respond({ status: 200, body: 'EVENT_RECEIVED' });
+        } else {
+            req.respond({ status: 404, body: 'Not Found' });
+        }
+    } else {
+        req.respond({ status: 404, body: 'Not Found' });
+    }
+}
