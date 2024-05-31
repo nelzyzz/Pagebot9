@@ -1,16 +1,15 @@
-// index.js
-const express = require('express');
-const bodyParser = require('body-parser');
-const fs = require('fs');
-const { handleMessage } = require('./handles/handleMessage');
-const { handlePostback } = require('./handles/handlePostback');
+import express from 'express';
+import bodyParser from 'body-parser';
+import { promises as fs } from 'fs';
+import { handleMessage } from './handles/handleMessage';
+import { handlePostback } from './handles/handlePostback';
 
 const app = express();
 app.use(bodyParser.json());
 
 const VERIFY_TOKEN = 'pagebot';
 
-const PAGE_ACCESS_TOKEN = fs.readFileSync('token.txt', 'utf8').trim();
+const PAGE_ACCESS_TOKEN = await fs.readFile('token.txt', 'utf8').then(data => data.trim());
 
 app.get('/webhook', (req, res) => {
   const mode = req.query['hub.mode'];
@@ -47,4 +46,7 @@ app.post('/webhook', (req, res) => {
   }
 });
 
-module.exports = app; // Export the Express.js app object
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
