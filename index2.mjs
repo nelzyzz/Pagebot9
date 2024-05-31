@@ -1,52 +1,55 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import { promises as fs } from 'fs';
-import { handleMessage } from './handles/handleMessage';
-import { handlePostback } from './handles/handlePostback';
+import { Application, Router } from 'https://deno.land/x/oak/mod.ts';
+import { handleMessage } from './handles/handleMessage.ts';
+import { handlePostback } from './handles/handlePostback.ts';
 
-const app = express();
-app.use(bodyParser.json());
+const app = new Application();
+const router = new Router();
+
+app.use(router.routes());
+app.use(router.allowedMethods());
 
 const VERIFY_TOKEN = 'pagebot';
 
-const PAGE_ACCESS_TOKEN = await fs.readFile('token.txt', 'utf8').then(data => data.trim());
+const tokenFile = await Deno.readTextFile('token.txt');
+const PAGE_ACCESS_TOKEN = tokenFile.trim();
 
-app.get('/webhook', (req, res) => {
-  const mode = req.query['hub.mode'];
-  const token = req.query['hub.verify_token'];
-  const challenge = req.query['hub.challenge'];
+router.get('/webhook', (context) => {
+  const params = context.request.url.searchParams;
+  const mode = params.get('hub.mode');
+  const token = params.get('hub.verify_token');
+  const challenge = params.get('hub.challenge');
 
   if (mode && token) {
     if (mode === 'subscribe' && token === VERIFY_TOKEN) {
       console.log('WEBHOOK_VERIFIED');
-      res.status(200).send(challenge);
+      context.response.body = challenge;
     } else {
-      res.sendStatus(403);
+      context.response.status = 403;
     }
   }
 });
 
-app.post('/webhook', (req, res) => {
-  const body = req.body;
+router.post('/webhook', async (context) => {
+  const body = await context.request.body();
+  const { object, entry } = body.value;
 
-  if (body.object === 'page') {
-    body.entry.forEach(entry => {
-      entry.messaging.forEach(event => {
+  if (object === 'page') {
+    for (const entryItem of entry) {
+      for (const event of entryItem.messaging) {
         if (event.message) {
           handleMessage(event, PAGE_ACCESS_TOKEN);
         } else if (event.postback) {
           handlePostback(event, PAGE_ACCESS_TOKEN);
         }
-      });
-    });
+      }
+    }
 
-    res.status(200).send('EVENT_RECEIVED');
+    context.response.body = 'EVENT_RECEIVED';
   } else {
-    res.sendStatus(404);
+    context.response.status = 404;
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+const PORT = 3000;
+console.log(`Server is running on port ${PORT}`);
+await app.listen({ port: PORT });
