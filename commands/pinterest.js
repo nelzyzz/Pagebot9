@@ -13,32 +13,18 @@ module.exports = {
       const images = response.data.result;
 
       if (images && images.length > 0) {
-        // Create elements for gallery template
-        const elements = images.slice(0, 10).map(imageUrl => ({
-          title: 'Pinterest Image',
-          image_url: imageUrl,
-          subtitle: 'Image from Pinterest',
-          default_action: {
-            type: 'web_url',
-            url: imageUrl,
-            messenger_extensions: false,
-            webview_height_ratio: 'full'
-          }
-        }));
-
-        // Create gallery template message
-        const galleryMessage = {
-          attachment: {
-            type: 'template',
-            payload: {
-              template_type: 'generic',
-              elements: elements
+        for (const imageUrl of images) {
+          const imageMessage = {
+            attachment: {
+              type: 'image',
+              payload: {
+                url: imageUrl,
+                is_reusable: true
+              }
             }
-          }
-        };
-
-        // Send gallery message
-        sendMessage(senderId, galleryMessage, pageAccessToken);
+          };
+          await sendMessage(senderId, imageMessage, pageAccessToken);
+        }
       } else {
         sendMessage(senderId, { text: 'No images found for your query.' }, pageAccessToken);
       }
