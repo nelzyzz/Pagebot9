@@ -14,7 +14,7 @@ module.exports = {
 
       if (images && images.length > 0) {
         for (const imageUrl of images) {
-          sendMessage(senderId, {
+          const imageMessage = {
             attachment: {
               type: 'image',
               payload: {
@@ -22,14 +22,15 @@ module.exports = {
                 is_reusable: true
               }
             }
-          }, pageAccessToken);
+          };
+          await sendMessage(senderId, imageMessage, pageAccessToken);
         }
       } else {
-        sendMessage(senderId, { text: 'No images found for your query.' }, pageAccessToken);
+        await sendMessage(senderId, { text: 'No images found for your query.' }, pageAccessToken);
       }
     } catch (error) {
       console.error('Error fetching Pinterest images:', error);
-      sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' }, pageAccessToken);
+      await sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' }, pageAccessToken);
     }
   }
 };
