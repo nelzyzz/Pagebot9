@@ -14,7 +14,7 @@ module.exports = {
 
       if (images && images.length > 0) {
         for (const imageUrl of images) {
-          const imageMessage = {
+          sendMessage(senderId, {
             attachment: {
               type: 'image',
               payload: {
@@ -22,8 +22,7 @@ module.exports = {
                 is_reusable: true
               }
             }
-          };
-          await sendMessage(senderId, imageMessage, pageAccessToken);
+          }, pageAccessToken);
         }
       } else {
         sendMessage(senderId, { text: 'No images found for your query.' }, pageAccessToken);
