@@ -1,20 +1,28 @@
 const axios = require('axios');
 
 module.exports = {
-  name: 'gpt4',
-  description: 'Ask a question to GPT-4',
+  name: 'hermes',
+  description: 'Ask a question to Hermes AI',
   author: 'Deku (rest api)',
   async execute(senderId, args, pageAccessToken, sendMessage) {
-    const prompt = args.join(' ');
-    try {
-      const apiUrl = `https://deku-rest-api-3ijr.onrender.com/gpt4?prompt=${encodeURIComponent(prompt)}&uid=${senderId}`;
-      const response = await axios.get(apiUrl);
-      const text = response.data.gpt4;
+    const query = args.join(' ');
 
-      // Send the response, split into chunks if necessary
-      await sendResponseInChunks(senderId, text, pageAccessToken, sendMessage);
+    try {
+      const apiUrl = `https://deku-rest-api-3ijr.onrender.com/api/nous-hermes-2?q=${encodeURIComponent(query)}`;
+      const response = await axios.get(apiUrl);
+
+      // Extracting relevant data from the response
+      const { status, result, author } = response.data;
+
+      if (status) {
+        // Send the response, split into chunks if necessary
+        await sendResponseInChunks(senderId, result, pageAccessToken, sendMessage);
+      } else {
+        console.error('Error: Unsuccessful response from Hermes API.');
+        sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' }, pageAccessToken);
+      }
     } catch (error) {
-      console.error('Error calling GPT-4 API:', error);
+      console.error('Error calling Hermes API:', error);
       sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' }, pageAccessToken);
     }
   }
@@ -23,9 +31,9 @@ module.exports = {
 async function sendResponseInChunks(senderId, text, pageAccessToken, sendMessage) {
   const maxMessageLength = 2000;
   if (text.length > maxMessageLength) {
-    const messages = splitMessageIntoChunks(text, maxMessageLength);
-    for (const message of messages) {
-      await sendMessage(senderId, { text: message }, pageAccessToken);
+    const chunks = splitMessageIntoChunks(text, maxMessageLength);
+    for (const chunk of chunks) {
+      await sendMessage(senderId, { text: chunk }, pageAccessToken);
     }
   } else {
     await sendMessage(senderId, { text }, pageAccessToken);
@@ -44,7 +52,7 @@ function splitMessageIntoChunks(message, chunkSize) {
     }
     chunk += `${word} `;
   }
-  
+
   if (chunk) {
     chunks.push(chunk.trim());
   }

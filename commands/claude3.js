@@ -14,16 +14,8 @@ module.exports = {
       // Extracting relevant data from the response
       const { respond, author } = response.data;
 
-      // Split the response into chunks if it exceeds 2000 characters
-      const maxMessageLength = 2000;
-      if (respond.length > maxMessageLength) {
-        const chunks = splitMessageIntoChunks(respond, maxMessageLength);
-        chunks.forEach(chunk => {
-          sendMessage(senderId, { text: chunk }, pageAccessToken);
-        });
-      } else {
-        sendMessage(senderId, { text: respond }, pageAccessToken);
-      }
+      // Send the response, split into chunks if necessary
+      await sendResponseInChunks(senderId, respond, pageAccessToken, sendMessage);
     } catch (error) {
       console.error('Error calling Claude-3 API:', error);
       sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' }, pageAccessToken);
@@ -31,10 +23,34 @@ module.exports = {
   }
 };
 
+async function sendResponseInChunks(senderId, text, pageAccessToken, sendMessage) {
+  const maxMessageLength = 2000;
+  if (text.length > maxMessageLength) {
+    const chunks = splitMessageIntoChunks(text, maxMessageLength);
+    for (const chunk of chunks) {
+      await sendMessage(senderId, { text: chunk }, pageAccessToken);
+    }
+  } else {
+    await sendMessage(senderId, { text }, pageAccessToken);
+  }
+}
+
 function splitMessageIntoChunks(message, chunkSize) {
   const chunks = [];
-  for (let i = 0; i < message.length; i += chunkSize) {
-    chunks.push(message.slice(i, i + chunkSize));
+  let chunk = '';
+  const words = message.split(' ');
+
+  for (const word of words) {
+    if ((chunk + word).length > chunkSize) {
+      chunks.push(chunk.trim());
+      chunk = '';
+    }
+    chunk += `${word} `;
   }
+
+  if (chunk) {
+    chunks.push(chunk.trim());
+  }
+
   return chunks;
 }

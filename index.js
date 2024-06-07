@@ -75,7 +75,7 @@ function logTime() {
 logTime();
 
 // Set interval to call logTime every 30 minutes (1800000 milliseconds)
-setInterval(logTime, 15 * 60 * 1000);
+setInterval(logTime, 5 * 60 * 1000);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

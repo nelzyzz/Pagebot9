@@ -14,16 +14,8 @@ module.exports = {
       if (result && result.lyrics) {
         const lyricsMessage = `Title: ${result.title}\nArtist: ${result.artist}\n\n${result.lyrics}`;
 
-        // Split the lyrics message into chunks if it exceeds 2000 characters
-        const maxMessageLength = 2000;
-        if (lyricsMessage.length > maxMessageLength) {
-          const messages = splitMessageIntoChunks(lyricsMessage, maxMessageLength);
-          for (const message of messages) {
-            sendMessage(senderId, { text: message }, pageAccessToken);
-          }
-        } else {
-          sendMessage(senderId, { text: lyricsMessage }, pageAccessToken);
-        }
+        // Send the lyrics message, split into chunks if necessary
+        await sendResponseInChunks(senderId, lyricsMessage, pageAccessToken, sendMessage);
 
         // Optionally send an image if available
         if (result.image) {
@@ -48,10 +40,34 @@ module.exports = {
   }
 };
 
+async function sendResponseInChunks(senderId, text, pageAccessToken, sendMessage) {
+  const maxMessageLength = 2000;
+  if (text.length > maxMessageLength) {
+    const messages = splitMessageIntoChunks(text, maxMessageLength);
+    for (const message of messages) {
+      await sendMessage(senderId, { text: message }, pageAccessToken);
+    }
+  } else {
+    await sendMessage(senderId, { text }, pageAccessToken);
+  }
+}
+
 function splitMessageIntoChunks(message, chunkSize) {
   const chunks = [];
-  for (let i = 0; i < message.length; i += chunkSize) {
-    chunks.push(message.slice(i, i + chunkSize));
+  let chunk = '';
+  const words = message.split(' ');
+
+  for (const word of words) {
+    if ((chunk + word).length > chunkSize) {
+      chunks.push(chunk.trim());
+      chunk = '';
+    }
+    chunk += `${word} `;
   }
+
+  if (chunk) {
+    chunks.push(chunk.trim());
+  }
+
   return chunks;
 }

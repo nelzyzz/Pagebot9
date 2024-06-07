@@ -10,16 +10,8 @@ module.exports = {
       sendMessage(senderId, { text: 'Please wait, I am processing your request...' }, pageAccessToken);
       const response = await callGeminiAPI(prompt);
 
-      // Split the response into chunks if it exceeds 2000 characters
-      const maxMessageLength = 2000;
-      if (response.length > maxMessageLength) {
-        const messages = splitMessageIntoChunks(response, maxMessageLength);
-        for (const message of messages) {
-          sendMessage(senderId, { text: message }, pageAccessToken);
-        }
-      } else {
-        sendMessage(senderId, { text: response }, pageAccessToken);
-      }
+      // Send the response, split into chunks if necessary
+      await sendResponseInChunks(senderId, response, pageAccessToken, sendMessage);
     } catch (error) {
       console.error('Error calling Gemini API:', error);
       sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' }, pageAccessToken);
@@ -27,10 +19,34 @@ module.exports = {
   }
 };
 
+async function sendResponseInChunks(senderId, text, pageAccessToken, sendMessage) {
+  const maxMessageLength = 2000;
+  if (text.length > maxMessageLength) {
+    const messages = splitMessageIntoChunks(text, maxMessageLength);
+    for (const message of messages) {
+      await sendMessage(senderId, { text: message }, pageAccessToken);
+    }
+  } else {
+    await sendMessage(senderId, { text }, pageAccessToken);
+  }
+}
+
 function splitMessageIntoChunks(message, chunkSize) {
   const chunks = [];
-  for (let i = 0; i < message.length; i += chunkSize) {
-    chunks.push(message.slice(i, i + chunkSize));
+  let chunk = '';
+  const words = message.split(' ');
+
+  for (const word of words) {
+    if ((chunk + word).length > chunkSize) {
+      chunks.push(chunk.trim());
+      chunk = '';
+    }
+    chunk += `${word} `;
   }
+
+  if (chunk) {
+    chunks.push(chunk.trim());
+  }
+
   return chunks;
 }

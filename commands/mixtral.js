@@ -1,20 +1,24 @@
 const axios = require('axios');
 
 module.exports = {
-  name: 'gpt4',
-  description: 'Ask a question to GPT-4',
+  name: 'mixtral',
+  description: 'Ask a question to the Mixtral API',
   author: 'Deku (rest api)',
   async execute(senderId, args, pageAccessToken, sendMessage) {
-    const prompt = args.join(' ');
+    const query = args.join(' ');
     try {
-      const apiUrl = `https://deku-rest-api-3ijr.onrender.com/gpt4?prompt=${encodeURIComponent(prompt)}&uid=${senderId}`;
+      const apiUrl = `https://deku-rest-api-3ijr.onrender.com/api/mixtral-8b?q=${encodeURIComponent(query)}`;
       const response = await axios.get(apiUrl);
-      const text = response.data.gpt4;
+      const { status, result } = response.data;
 
-      // Send the response, split into chunks if necessary
-      await sendResponseInChunks(senderId, text, pageAccessToken, sendMessage);
+      if (status) {
+        // Send the response, split into chunks if necessary
+        await sendResponseInChunks(senderId, result, pageAccessToken, sendMessage);
+      } else {
+        sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' }, pageAccessToken);
+      }
     } catch (error) {
-      console.error('Error calling GPT-4 API:', error);
+      console.error('Error calling Mixtral API:', error);
       sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' }, pageAccessToken);
     }
   }
