@@ -1,11 +1,12 @@
 const fs = require('fs');
 const axios = require('axios');
+const path = require('path')
 
-const petDataPath = './data/petData.json';
+//const petDataPath = './petData.json';
+const petDataPath = path.join(__dirname, 'data', 'petData.json');
 let petData = {};
 const hungerDecreaseInterval = 60 * 60 * 1000; // 1 hour
 const sleepCheckInterval = 5 * 60 * 60 * 1000; // 5 hours
-//let timer = null;
 
 // Load pet data from the JSON file
 function loadPetData() {
@@ -33,11 +34,12 @@ function decreaseHunger() {
     if (petData[ownerId].hunger > 0) {
       petData[ownerId].hunger -= 10;
       if (petData[ownerId].hunger < 0) petData[ownerId].hunger = 0;
-      if (petData[ownerId].hunger === 0) petData[ownerId].isSick = true;
-
-      // Send a message if hunger is critically low
-      if (petData[ownerId].hunger <= 20) {
-        sendMessage(ownerId, { text: `⚠️ ${petData[ownerId].name} is very hungry! Please feed it.` }, petData[ownerId].pageAccessToken);
+      if (petData[ownerId].hunger <= 10) petData[ownerId].isSick = true; // Pet becomes sick if hunger is 10 or below
+      if (petData[ownerId].hunger === 0) {
+        // Pet dies if hunger reaches 0
+        sendMessage(ownerId, { text: `💀 Oh no! ${petData[ownerId].name} has died of hunger.` }, petData[ownerId].pageAccessToken);
+        delete petData[ownerId]; // Remove the pet data
+        continue; // Move to the next pet
       }
     }
   }
@@ -88,93 +90,48 @@ function splitMessageIntoChunks(message, chunkSize) {
 
   return chunks;
 }
-// Map of emojis to their hunger values
-const emojiHungerMap = {
-  '🍓': 10, '🍒': 8, '🍎': 7, '🍉': 6, '🍑': 7, '🍊': 5, '🥭': 9, '🍍': 8, '🍋': 6, '🍋‍': 6,
-  '🍈': 6, '🍏': 7, '🍐': 7, '🥝': 8, '🫒': 6, '🫐': 9, '🍇': 7, '🥥': 6, '🍅': 5, '🌶️': 7, '🫚': 7,
-  '🥕': 6, '🧅': 5, '🌽': 6, '🥦': 7, '🥒': 5, '🥬': 6, '🫛': 6, '🫑': 7, '🥑': 8, '🍠': 6, '🍆': 6,
-  '🧄': 4, '🥔': 5, '🍄‍': -5, '🫘': -4, '🌰': 4, '🥜': 5, '🍞': 6, '🫓': 5, '🥐': 6, '🥖': 6, '🥯': 5,
-  '🧇': 7, '🥞': 7, '🍳': 8, '🥚': 5, '🧀': 7, '🥓': 8, '🥩': 9, '🍗': 8, '🍖': 9, '🍔': 8, '🌭': 7,
-  '🥪': 7, '🥨': 7, '🍟': 6, '🍕': 6, '🫔': 6, '🌮': 8, '🌯': 8, '🥙': 8, '🧆': 7, '🥘': 7, '🍝': 9,
-  '🥫': 7, '🫕': 7, '🥗': 6, '🥣': 7, '🍲': 8, '🍛': 9, '🍜': 9, '🦪': 9, '🦞': 9, '🍣': 8, '🍤': 8,
-  '🥠': 6, '🍚': 7, '🍱': 8, '🥟': 8, '🥡': 7, '🍢': 7, '🍙': 6, '🍘': 6, '🍥': 5, '🍡': 5, '🥮': 8,
-  '🍧': 6, '🍨': 7, '🍦': 7, '🥧': 8, '🍰': 8, '🍮': 7, '🎂': 8, '🧁': 7, '🍭': 6, '🍫': 7, '🍫': 7,
-  '🍩': 6, '🍪': 6, '🍯': 6, '🧂': 5, '🧈': 6, '🍿': 5, '🧊': 5, '🫙': 6, '🥤': 6, '🧋': 6, '🧃': 5,
-  '🥛': 5, '🍼': 5, '🥃': 7, '☕': 6, '🫗': 6, '🫖': 5, '🍵': 6, '🍸': 7, '🍹': 7, '🧉': 6, '🍺': 7,
-  '🍶': 8, '🍷': 7, '🍾': 8, '🥂': 7, '🍻': 8, '🥃': 7,
-};
 
-let timer;
+// Map of food emojis to hunger values
+const emojiHungerMap = {
+  '🍓': 10, '🍒': 10, '🍎': 10, '🍉': 10, '🍑': 10,
+  '🍊': 10, '🥭': 10, '🍍': 10, '🍋': 10, '🍈': 10,
+  '🍏': 10, '🍐': 10, '🥝': 10, '🫒': 10, '🫐': 10,
+  '🍇': 10, '🥥': 10, '🍅': 10, '🌶️': -10, '🫚': 10,
+  '🥕': 10, '🧅': 10, '🌽': 10, '🥦': 10, '🥒': 10,
+  '🥬': 10, '🫛': 10, '🫑': 10, '🥑': 10, '🍠': 10,
+  '🍆': 10, '🧄': 10, '🥔': 10, '🍄': 10, '🫘': 10,
+  '🌰': 10, '🥜': 10, '🍞': 10, '🫓': 10, '🥐': 10,
+  '🥖': 10, '🥯': 10, '🧇': 10, '🥞': 10, '🍳': 10,
+  '🥚': 10, '🧀': 10, '🥓': 10, '🥩': 10, '🍗': 10,
+  '🍖': 10, '🍔': 10, '🌭': 10, '🥪': 10, '🥨': 10,
+  '🍟': 10, '🍕': 10, '🫔': 10, '🌮': 10, '🌯': 10,
+  '🥙': 10, '🧆': 10, '🥘': 10, '🍝': 10, '🥫': 10,
+  '🫕': 10, '🥗': 10, '🥣': 10, '🍲': 10, '🍛': 10,
+  '🍜': 10, '🦪': 10, '🦞': 10, '🍣': 10, '🍤': 10,
+  '🥠': 10, '🍚': 10, '🍱': 10, '🥟': 10, '🥡': 10,
+  '🍢': 10, '🍙': 10, '🍘': 10, '🍥': 10, '🍡': 10,
+  '🥮': 10, '🍧': 10, '🍨': 10, '🍦': 10, '🥧': 10,
+  '🍰': 10, '🍮': 10, '🎂': 10, '🧁': 10, '🍭': 10,
+  '🍫': 10, '🍩': 10, '🍪': 10, '🍯': 10, '🧂': 10,
+  '🧈': 10, '🍿': 10, '🧊': 10, '🫙': 10, '🥤': 10,
+  '🧋': 10, '🧃': 10, '🥛': 10, '🍼': 10, '🥃': 10,
+  '☕': 10, '🫗': 10, '🫖': 10, '🍵': 10, '🍸': 10,
+  '🍹': 10, '🧉': 10, '🍺': 10, '🍶': 10, '🍷': 10,
+  '🍾': 10, '🥂': 10, '🍻': 10, '🥃': 10, '🩹': 0,
+  '💊': 0, '💉': 0 // Medicine emojis for curing sickness
+};
 
 module.exports = {
   name: 'pet',
   description: 'Interact with your virtual pet',
   author: 'Adrian',
-  execute(senderId, args, pageAccessToken, sendMessage) {
-    const action = args[0];
-    
-    // Check if an action was provided
-    if (!action) {
-      sendMessage(senderId, { text: 'Please provide an action for your pet, e.g., feed, play, sleep, status, rename, delete, call, help.' }, pageAccessToken);
-      return;
-    }
+  async execute(senderId, args, pageAccessToken, sendMessage) {
+    loadPetData();
 
-    // Load pet data from the JSON file
-    let petData;
-    try {
-      petData = JSON.parse(fs.readFileSync(petDataPath, 'utf8'));
-    } catch (error) {
-      petData = {};
-    }
+    const action = args[0] ? args[0].toLowerCase() : '';
+    const petName = petData[senderId] ? petData[senderId].name : 'your pet';
 
-    // Function to save pet data to the JSON file
-    function savePetData() {
-      fs.writeFileSync(petDataPath, JSON.stringify(petData, null, 2));
-    }
-
-    // Function to generate a status bar for pet attributes
-    function generateStatusBar(attribute, value) {
-      const totalBars = 20;
-      const filledBars = Math.round((value / 100) * totalBars);
-      const emptyBars = totalBars - filledBars;
-      return `${attribute}: [${'█'.repeat(filledBars)}${'░'.repeat(emptyBars)}] ${value}/100`;
-    }
-
-    // Function to decrease hunger over time
-    function decreaseHunger() {
-      Object.keys(petData).forEach(id => {
-        petData[id].hunger -= 5;
-        if (petData[id].hunger < 0) petData[id].hunger = 0;
-        if (petData[id].hunger <= lowHungerThreshold) {
-          sendMessage(id, { text: `Your pet ${petData[id].name} is hungry! Please feed it.` }, pageAccessToken);
-        }
-        if (petData[id].hunger === 0) {
-          petData[id].isSick = true;
-          sendMessage(id, { text: `Your pet ${petData[id].name} is sick due to hunger. Please cure it with medicine.` }, pageAccessToken);
-        }
-      });
-      savePetData();
-    }
-
-    // Function to check if pets need to sleep
-    function checkSleep() {
-      Object.keys(petData).forEach(id => {
-        petData[id].energy -= 5;
-        if (petData[id].energy < 0) petData[id].energy = 0;
-        if (petData[id].energy <= lowEnergyThreshold) {
-          sendMessage(id, { text: `Your pet ${petData[id].name} is very tired! It needs to sleep.` }, pageAccessToken);
-        }
-        if (petData[id].energy === 0) {
-          petData[id].isSick = true;
-          sendMessage(id, { text: `Your pet ${petData[id].name} is sick due to lack of sleep. Please let it rest.` }, pageAccessToken);
-        }
-      });
-      savePetData();
-    }
-
-    // Function to perform an action based on user input
-    function performAction(action, senderId, args) {
-      const petName = petData[senderId]?.name;
+    async function performAction(action, senderId, args) {
       switch (action) {
         case 'new':
           if (!args[1]) {
@@ -183,101 +140,104 @@ module.exports = {
           }
           petData[senderId] = {
             name: args[1],
-            owner: senderId, // Add owner field
             hunger: 100,
             energy: 100,
-            isSick: false
+            isSick: false,
+            owner: senderId,
+            pageAccessToken: pageAccessToken
           };
-          sendMessage(senderId, { text: `You have a new pet named ${args[1]}!` }, pageAccessToken);
+          savePetData();
+          sendMessage(senderId, { text: `Congratulations! You have a new pet named ${args[1]}.` }, pageAccessToken);
           break;
 
         case 'feed':
-          if (!args[1] || !emojiHungerMap[args[1]]) {
-            sendMessage(senderId, { text: 'Please provide a valid food emoji to feed your pet.' }, pageAccessToken);
+          if (!petData[senderId]) {
+            sendMessage(senderId, { text: 'You do not have a pet yet. Please create one with the "new" command.' }, pageAccessToken);
             return;
           }
-          petData[senderId].hunger += emojiHungerMap[args[1]];
-          if (petData[senderId].hunger > 100) petData[senderId].hunger = 100;
-          if (petData[senderId].isSick && petData[senderId].hunger > 0) petData[senderId].isSick = false;
-          sendMessage(senderId, { text: `You fed ${petName} ${args[1]}!` }, pageAccessToken);
-          break;
 
-        case 'play':
-          petData[senderId].energy -= 10;
-          if (petData[senderId].energy < 0) petData[senderId].energy = 0;
-          if (petData[senderId].energy === 0) {
-            petData[senderId].isSick = true;
-            sendMessage(senderId, { text: `${petName} is exhausted and got sick. Please let it rest.` }, pageAccessToken);
-          } else {
-            sendMessage(senderId, { text: `You played with ${petName}!` }, pageAccessToken);
+          if (!args[1]) {
+            sendMessage(senderId, { text: 'Please provide a food emoji to feed your pet.' }, pageAccessToken);
+            return;
           }
-          break;
 
-        case 'sleep':
-          petData[senderId].energy += 20;
-          if (petData[senderId].energy > 100) petData[senderId].energy = 100;
-          if (petData[senderId].isSick && petData[senderId].energy > 0) petData[senderId].isSick = false;
-          sendMessage(senderId, { text: `${petName} is sleeping and regaining energy.` }, pageAccessToken);
+          const foodEmoji = args[1];
+          const hungerIncrease = emojiHungerMap[foodEmoji];
+
+          if (hungerIncrease !== undefined) {
+            petData[senderId].hunger += hungerIncrease;
+            if (petData[senderId].hunger > 100) petData[senderId].hunger = 100;
+            savePetData();
+            sendMessage(senderId, { text: `${petName} enjoyed the ${foodEmoji}!` }, pageAccessToken);
+          } else {
+            sendMessage(senderId, { text: 'That is not a valid food emoji.' }, pageAccessToken);
+          }
           break;
 
         case 'status':
           if (!petData[senderId]) {
-            sendMessage(senderId, { text: 'You do not have a pet. Use the "new" command to get one.' }, pageAccessToken);
+            sendMessage(senderId, { text: 'You do not have a pet yet. Please create one with the "new" command.' }, pageAccessToken);
             return;
           }
-          const hungerStatus = generateStatusBar('Hunger', petData[senderId].hunger);
-          const energyStatus = generateStatusBar('Energy', petData[senderId].energy);
-          const healthStatus = petData[senderId].isSick ? 'Health: Sick' : 'Health: Healthy';
-          sendMessage(senderId, { text: `Status of ${petName}:\n${hungerStatus}\n${energyStatus}\n${healthStatus}` }, pageAccessToken);
+
+          const hungerBar = generateStatusBar('Hunger', petData[senderId].hunger);
+          const energyBar = generateStatusBar('Energy', petData[senderId].energy);
+          const statusMessage = `${petName}'s status:\n\n${hungerBar}\n${energyBar}`;
+          sendResponseInChunks(senderId, statusMessage, pageAccessToken, sendMessage);
           break;
 
-        case 'rename':
-          if (!args[1]) {
-            sendMessage(senderId, { text: 'Please provide a new name for your pet.' }, pageAccessToken);
+        case 'play':
+          if (!petData[senderId]) {
+            sendMessage(senderId, { text: 'You do not have a pet yet. Please create one with the "new" command.' }, pageAccessToken);
             return;
           }
-          const oldName = petData[senderId].name;
-          petData[senderId].name = args[1];
-          sendMessage(senderId, { text: `Your pet has been renamed from ${oldName} to ${args[1]}.` }, pageAccessToken);
+
+          if (petData[senderId].energy > 0) {
+            petData[senderId].energy -= 10;
+            if (petData[senderId].energy < 0) petData[senderId].energy = 0;
+            savePetData();
+            sendMessage(senderId, { text: `${petName} had fun playing!` }, pageAccessToken);
+          } else {
+            sendMessage(senderId, { text: `${petName} is too tired to play. Let it rest first.` }, pageAccessToken);
+          }
           break;
 
-        case 'delete':
-          delete petData[senderId];
-          sendMessage(senderId, { text: 'Your pet has been deleted.' }, pageAccessToken);
+        case 'sleep':
+          if (!petData[senderId]) {
+            sendMessage(senderId, { text: 'You do not have a pet yet. Please create one with the "new" command.' }, pageAccessToken);
+            return;
+          }
+
+          petData[senderId].energy = 100;
+          savePetData();
+          sendMessage(senderId, { text: `${petName} had a good rest and is now full of energy!` }, pageAccessToken);
           break;
 
-        case 'call':
-          sendMessage(senderId, { text: `Here is your pet, ${petName}!` }, pageAccessToken);
-          break;
+        case 'heal':
+          if (!petData[senderId]) {
+            sendMessage(senderId, { text: 'You do not have a pet yet. Please create one with the "new" command.' }, pageAccessToken);
+            return;
+          }
 
-        case 'help':
-          sendMessage(senderId, {
-            text: `Available commands:\n
-            new [name] - Create a new pet with the specified name.\n
-            feed [emoji] - Feed your pet with the specified food emoji.\n
-            play - Play with your pet.\n
-            sleep - Let your pet sleep.\n
-            status - Get the current status of your pet.\n
-            rename [new name] - Rename your pet.\n
-            delete - Delete your pet.\n
-            call - Call your pet to see it.\n
-            help - Show this help message.`
-          }, pageAccessToken);
+          if (petData[senderId].isSick) {
+            petData[senderId].isSick = false;
+            savePetData();
+            sendMessage(senderId, { text: `${petName} has been healed!` }, pageAccessToken);
+          } else {
+            sendMessage(senderId, { text: `${petName} is not sick.` }, pageAccessToken);
+          }
           break;
 
         default:
-          sendMessage(senderId, { text: 'Unknown command. Use "help" to see the list of available commands.' }, pageAccessToken);
+          sendMessage(senderId, { text: 'Unknown command. Available commands are: new, feed, status, play, sleep, heal.' }, pageAccessToken);
           break;
       }
-      savePetData();
     }
 
-    performAction(action, senderId, args);
+    await performAction(action, senderId, args);
+
+    // Start intervals for decreasing hunger and checking sleep
+    setInterval(decreaseHunger, hungerDecreaseInterval);
+    setInterval(checkSleep, sleepCheckInterval);
   }
 };
-
-// Initialize intervals for hunger decrease and sleep check
-if (!timer) {
-  timer = setInterval(decreaseHunger, hungerDecreaseInterval);
-  setInterval(checkSleep, sleepCheckInterval);
-}
