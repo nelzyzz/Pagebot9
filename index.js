@@ -69,12 +69,12 @@ function logTime() {
     console.log(logMessage);
 
     // Append the log message to a file
-    fs.appendFile('timeLog.txt', logMessage, (err) => {
+   /* fs.appendFile('timeLog.txt', logMessage, (err) => {
         if (err) {
             console.error('Failed to write to log file', err);
         }
-    });
-}
+    }); */
+} 
 
 // Log the time immediately
 logTime();
