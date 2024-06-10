@@ -26,8 +26,39 @@ module.exports = {
     const endIndex = Math.min(startIndex + commandsPerPage, totalCommands);
 
     const paginatedCommands = commands.slice(startIndex, endIndex);
-    const helpMessage = `Here are the available commands (Page ${page}/${totalPages}):\nTotal commands: ${totalCommands}\n\n${paginatedCommands.join('\n\n')}\n\nUse "help [page]" to see more commands.`;
+    const helpMessage = `Here are the available commands (Page ${page}/${totalPages}):\nTotal commands: ${totalCommands}\n\n${paginatedCommands.join('\n\n')}`;
 
-    sendMessage(senderId, { text: helpMessage }, pageAccessToken);
+    // Define navigation buttons
+    const buttons = [];
+    if (page > 1) {
+      buttons.push({
+        type: 'postback',
+        title: `Previous (${page - 1})`,
+        payload: `help ${page - 1}`
+      });
+    }
+    if (page < totalPages) {
+      buttons.push({
+        type: 'postback',
+        title: `Next (${page + 1})`,
+        payload: `help ${page + 1}`
+      });
+    }
+
+    const messageData = {
+      recipient: { id: senderId },
+      message: {
+        attachment: {
+          type: 'template',
+          payload: {
+            template_type: 'button',
+            text: helpMessage + "\n\nUse the buttons below to navigate pages.",
+            buttons: buttons
+          }
+        }
+      }
+    };
+
+    sendMessage(senderId, messageData, pageAccessToken);
   }
 };
