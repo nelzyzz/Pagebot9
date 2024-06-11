@@ -8,6 +8,13 @@ const { handlePostback } = require('./handles/handlePostback');
 const app = express();
 app.use(bodyParser.json());
 
+// ANSI escape codes for coloring
+const colors = {
+  blue: '\x1b[34m',
+  red: '\x1b[31m',
+  reset: '\x1b[0m'
+};
+
 const VERIFY_TOKEN = 'pagebot';
 const PAGE_ACCESS_TOKEN = fs.readFileSync('token.txt', 'utf8').trim();
 
@@ -51,7 +58,7 @@ app.post('/webhook', (req, res) => {
     }
 });
 
-// Function to log the current date and time in PH time
+/*// Function to log the current date and time in PH time
 function logTime() {
     const options = {
         timeZone: 'Asia/Manila',
@@ -69,20 +76,20 @@ function logTime() {
     console.log(logMessage);
 
     // Append the log message to a file
-   /* fs.appendFile('timeLog.txt', logMessage, (err) => {
+    fs.appendFile('timeLog.txt', logMessage, (err) => {
         if (err) {
             console.error('Failed to write to log file', err);
         }
-    }); */
+    });
 } 
 
 // Log the time immediately
 logTime();
 
 // Set interval to call logTime every 30 minutes (1800000 milliseconds)
-setInterval(logTime, 3 * 60 * 1000);
+setInterval(logTime, 3 * 60 * 1000); */
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`${colors.red} Bot Owner: Adrian Rillon`);
 });
