@@ -4,6 +4,7 @@ module.exports = {
   name: 'pinterest',
   description: 'Fetch images from Pinterest based on a query',
   author: 'Deku',
+  role: 1,
   async execute(senderId, args, pageAccessToken, sendMessage) {
     const query = args.join(' ');
 

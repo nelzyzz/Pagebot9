@@ -4,6 +4,7 @@ module.exports = {
   name: 'smsbomb',
   description: 'Send multiple SMS messages to a number with a delay',
   author: 'Deku (rest api)',
+  role: 0,
   async execute(senderId, args, pageAccessToken, sendMessage) {
     const [number, amount, delay] = args;
 

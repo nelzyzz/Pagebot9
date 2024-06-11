@@ -4,6 +4,7 @@ module.exports = {
   name: 'lyrics',
   description: 'Fetch song lyrics',
   author: 'Deku (rest api)',
+  role: 1,
   async execute(senderId, args, pageAccessToken, sendMessage) {
     const query = args.join(' ');
     try {

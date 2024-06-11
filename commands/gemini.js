@@ -4,6 +4,7 @@ module.exports = {
   name: 'gemini',
   description: 'Ask a question to the Gemini AI',
   author: 'ChatGPT',
+  role: 1,
   async execute(senderId, args, pageAccessToken, sendMessage) {
     const prompt = args.join(' ');
     try {

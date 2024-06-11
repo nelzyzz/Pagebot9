@@ -4,6 +4,7 @@ module.exports = {
   name: 'dictionary',
   description: 'Search words dictionary',
   author: 'Developer',
+  role: 1,
   async execute(senderId, args, pageAccessToken, sendMessage) {
     const input = args.join(' ');
 

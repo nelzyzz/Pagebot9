@@ -4,6 +4,7 @@ module.exports = {
   name: 'liner',
   description: 'Ask a question to Linerva Pro AI',
   author: 'Deku (rest api)',
+  role: 1,
   async execute(senderId, args, pageAccessToken, sendMessage) {
     const query = args.join(' ');
 

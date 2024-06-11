@@ -4,6 +4,7 @@ module.exports = {
   name: 'mixtral',
   description: 'Ask a question to the Mixtral API',
   author: 'Deku (rest api)',
+  role: 1,
   async execute(senderId, args, pageAccessToken, sendMessage) {
     const query = args.join(' ');
     try {

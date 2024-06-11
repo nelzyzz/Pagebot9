@@ -4,6 +4,7 @@ module.exports = {
   name: 'spotify',
   description: 'Get a Spotify link for a song',
   author: 'Deku (rest api)',
+  role: 1,
   async execute(senderId, args, pageAccessToken, sendMessage) {
     const query = args.join(' ');
 

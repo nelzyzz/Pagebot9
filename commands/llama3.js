@@ -4,6 +4,7 @@ module.exports = {
   name: 'llama3',
   description: 'Ask a question to LLaMA-3 AI',
   author: 'Deku (rest api)',
+  role: 1,
   async execute(senderId, args, pageAccessToken, sendMessage) {
     const query = args.join(' ');
 

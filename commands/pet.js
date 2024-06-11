@@ -4,9 +4,11 @@ const path = require('path')
 
 //const petDataPath = './petData.json';
 const petDataPath = path.join(__dirname, 'data', 'petData.json');
-let petData = {};
+
+let petData = {}; 
+
 const hungerDecreaseInterval = 60 * 60 * 1000; // 1 hour
-const sleepCheckInterval = 5 * 60 * 60 * 1000; // 5 hours
+const sleepCheckInterval = 2 * 60 * 60 * 1000; // 2 hours
 
 // Load pet data from the JSON file
 function loadPetData() {
@@ -94,13 +96,13 @@ function splitMessageIntoChunks(message, chunkSize) {
 // Map of food emojis to hunger values
 const emojiHungerMap = {
   '🍓': 10, '🍒': 10, '🍎': 10, '🍉': 10, '🍑': 10,
-  '🍊': 10, '🥭': 10, '🍍': 10, '🍋': 10, '🍈': 10,
-  '🍏': 10, '🍐': 10, '🥝': 10, '🫒': 10, '🫐': 10,
-  '🍇': 10, '🥥': 10, '🍅': 10, '🌶️': -10, '🫚': 10,
-  '🥕': 10, '🧅': 10, '🌽': 10, '🥦': 10, '🥒': 10,
+  '🍊': 15, '🥭': 10, '🍍': 19, '🍋': 12, '🍈': 10,
+  '🍏': 14, '🍐': 10, '🥝': 10, '🫒': 10, '🫐': 10,
+  '🍇': 11, '🥥': 10, '🍅': 10, '🌶️': -10, '🫚': 10,
+  '🥕': 10, '🧅': 10, '🌽': 10, '🥦': 10, '🥒': 4,
   '🥬': 10, '🫛': 10, '🫑': 10, '🥑': 10, '🍠': 10,
-  '🍆': 10, '🧄': 10, '🥔': 10, '🍄': 10, '🫘': 10,
-  '🌰': 10, '🥜': 10, '🍞': 10, '🫓': 10, '🥐': 10,
+  '🍆': 6, '🧄': 10, '🥔': 10, '🍄': 10, '🫘': 10,
+  '🌰': 10, '🥜': 3, '🍞': 10, '🫓': 10, '🥐': 10,
   '🥖': 10, '🥯': 10, '🧇': 10, '🥞': 10, '🍳': 10,
   '🥚': 10, '🧀': 10, '🥓': 10, '🥩': 10, '🍗': 10,
   '🍖': 10, '🍔': 10, '🌭': 10, '🥪': 10, '🥨': 10,
@@ -125,6 +127,7 @@ module.exports = {
   name: 'pet',
   description: 'Interact with your virtual pet',
   author: 'Adrian',
+  role: 1,
   async execute(senderId, args, pageAccessToken, sendMessage) {
     loadPetData();
 

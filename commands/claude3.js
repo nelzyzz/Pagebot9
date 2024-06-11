@@ -4,6 +4,7 @@ module.exports = {
   name: 'claude3',
   description: 'Ask a question to Claude-3 AI',
   author: 'Deku (rest api)',
+  role: 1,
   async execute(senderId, args, pageAccessToken, sendMessage) {
     const prompt = args.join(' ');
 

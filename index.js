@@ -16,7 +16,7 @@ const colors = {
 };
 
 const VERIFY_TOKEN = 'pagebot';
-const PAGE_ACCESS_TOKEN = fs.readFileSync('token.txt', 'utf8').trim();
+const config = require('./config.json'); // Import config.json
 
 // Serve static files from the Music directory
 app.use(express.static(path.join(__dirname, 'Music')));
@@ -45,9 +45,9 @@ app.post('/webhook', (req, res) => {
         body.entry.forEach(entry => {
             entry.messaging.forEach(event => {
                 if (event.message) {
-                    handleMessage(event, PAGE_ACCESS_TOKEN);
+                    handleMessage(event, config.pageAccessToken); // Use pageAccessToken from config.json
                 } else if (event.postback) {
-                    handlePostback(event, PAGE_ACCESS_TOKEN);
+                    handlePostback(event, config.pageAccessToken); // Use pageAccessToken from config.json
                 }
             });
         });
@@ -58,7 +58,7 @@ app.post('/webhook', (req, res) => {
     }
 });
 
-/*// Function to log the current date and time in PH time
+// Function to log the current date and time in PH time
 function logTime() {
     const options = {
         timeZone: 'Asia/Manila',
@@ -75,21 +75,15 @@ function logTime() {
     const logMessage = `Current time (PH): ${currentTime}\n`;
     console.log(logMessage);
 
-    // Append the log message to a file
-    fs.appendFile('timeLog.txt', logMessage, (err) => {
-        if (err) {
-            console.error('Failed to write to log file', err);
-        }
-    });
 } 
 
 // Log the time immediately
 logTime();
 
 // Set interval to call logTime every 30 minutes (1800000 milliseconds)
-setInterval(logTime, 3 * 60 * 1000); */
+setInterval(logTime, 60 * 60 * 1000);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`${colors.red} Bot Owner: Adrian Rillon`);
+    console.log(`${colors.red} Bot Owner: ${config.owner}`); // Access admin property from config.json
 });

@@ -4,6 +4,7 @@ module.exports = {
   name: 'sumi',
   description: 'Execute the Sumi command',
   author: 'Liane Cagara (liaspark)',
+  role: 1,
   async execute(senderId, args, pageAccessToken, sendMessage) {
     const prompt = args.join(' ');
     try {
