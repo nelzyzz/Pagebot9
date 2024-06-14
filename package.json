@@ -19,6 +19,7 @@
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.13",
     "request": "^2.88.2",
+    "vercel": "^34.2.7",
     "winston": "^3.13.0"
   },
   "engines": {
