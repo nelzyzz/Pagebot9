@@ -9,7 +9,7 @@ module.exports = {
     const prompt = args.join(' ');
 
     try {
-      const apiUrl = `https://deku-rest-api-3ijr.onrender.com/api/claude-3?q=${encodeURIComponent(prompt)}`;
+      const apiUrl = `https://deku-rest-api-ywad.onrender.com/api/claude-3?q=${encodeURIComponent(prompt)}`;
       const response = await axios.get(apiUrl);
 
       // Extracting relevant data from the response

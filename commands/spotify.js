@@ -9,7 +9,7 @@ module.exports = {
     const query = args.join(' ');
 
     try {
-      const apiUrl = `https://deku-rest-api-3ijr.onrender.com/spotify?q=${encodeURIComponent(query)}`;
+      const apiUrl = `https://deku-rest-api-ywad.onrender.com/spotify?q=${encodeURIComponent(query)}`;
       const response = await axios.get(apiUrl);
 
       // Extract the Spotify link from the response

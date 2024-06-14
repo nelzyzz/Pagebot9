@@ -9,7 +9,7 @@ module.exports = {
     const query = args.join(' ');
 
     try {
-      const apiUrl = `https://deku-rest-api-3ijr.onrender.com/api/nous-hermes-2?q=${encodeURIComponent(query)}`;
+      const apiUrl = `https://deku-rest-api-ywad.onrender.com/api/nous-hermes-2?q=${encodeURIComponent(query)}`;
       const response = await axios.get(apiUrl);
 
       // Extracting relevant data from the response

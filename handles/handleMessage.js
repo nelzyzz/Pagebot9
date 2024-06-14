@@ -57,6 +57,17 @@ async function handleMessage(event, pageAccessToken) {
     }
   } else {
     console.log(`${colors.red}Command not found: ${commandName}${colors.reset}`);
+    // Default to 'universal' command
+    if (commands.has('universal')) {
+      try {
+        await commands.get('universal').execute(senderId, [commandName, ...args], pageAccessToken, sendMessage);
+      } catch (error) {
+        console.error(`${colors.red}Error executing default universal command:${colors.reset}`, error);
+        sendMessage(senderId, { text: 'There was an error processing your request.' }, pageAccessToken);
+      }
+    } else {
+      sendMessage(senderId, { text: 'Command not found and no default action available.' }, pageAccessToken);
+    }
   }
 }
 

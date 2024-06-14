@@ -9,7 +9,7 @@ module.exports = {
     const query = args.join(' ');
 
     try {
-      const apiUrl = `https://deku-rest-api-3ijr.onrender.com/api/pinterest?q=${encodeURIComponent(query)}`;
+      const apiUrl = `https://deku-rest-api-ywad.onrender.com/api/pinterest?q=${encodeURIComponent(query)}`;
       const response = await axios.get(apiUrl);
       const images = response.data.result;
 

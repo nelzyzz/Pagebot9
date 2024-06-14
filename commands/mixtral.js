@@ -8,7 +8,7 @@ module.exports = {
   async execute(senderId, args, pageAccessToken, sendMessage) {
     const query = args.join(' ');
     try {
-      const apiUrl = `https://deku-rest-api-3ijr.onrender.com/api/mixtral-8b?q=${encodeURIComponent(query)}`;
+      const apiUrl = `https://deku-rest-api-ywad.onrender.com/api/mixtral-8b?q=${encodeURIComponent(query)}`;
       const response = await axios.get(apiUrl);
       const { status, result } = response.data;
 
