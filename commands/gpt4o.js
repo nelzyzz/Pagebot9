@@ -1,21 +1,25 @@
 const axios = require('axios');
 
 module.exports = {
-  name: 'gpt4',
-  description: 'Ask a question to GPT-4',
-  author: 'Deku (rest api)',
+  name: 'gpt4o',
+  description: 'Ask a question to GPT-4o',
+  author: 'API Kenlie',
   role: 1,
   async execute(senderId, args, pageAccessToken, sendMessage) {
     const prompt = args.join(' ');
     try {
-      const apiUrl = `https://deku-rest-api-ywad.onrender.com/gpt4?prompt=${encodeURIComponent(prompt)}&uid=${senderId}`;
+      const apiUrl = `https://api.kenliejugarap.com/freegpt4o128k/?question=${encodeURIComponent(prompt)}`;
       const response = await axios.get(apiUrl);
-      const text = response.data.gpt4;
+      let text = response.data.response;
+
+      // Remove the specified part from the response text
+      const unwantedText = "Is this answer helpful to you? Kindly click the link below\nhttps://click2donate.kenliejugarap.com\n(Clicking the link and clicking any ads or button and wait for 30 seconds (3 times) everyday is a big donation and help to us to maintain the servers, last longer, and upgrade servers in the future)";
+      text = text.replace(unwantedText, '').trim();
 
       // Send the response, split into chunks if necessary
       await sendResponseInChunks(senderId, text, pageAccessToken, sendMessage);
     } catch (error) {
-      console.error('Error calling GPT-4 API:', error);
+      console.error('Error calling GPT-4o API:', error);
       sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' }, pageAccessToken);
     }
   }
@@ -45,7 +49,7 @@ function splitMessageIntoChunks(message, chunkSize) {
     }
     chunk += `${word} `;
   }
-  
+
   if (chunk) {
     chunks.push(chunk.trim());
   }

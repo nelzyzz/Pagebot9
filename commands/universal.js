@@ -5,6 +5,9 @@ const apiUrlGpt4o = 'https://api.kenliejugarap.com/freegpt4o128k/?question=';
 const apiUrlPinterest = 'https://deku-rest-api-ywad.onrender.com/api/pinterest';
 const apiUrlSpotify = 'https://deku-rest-api-ywad.onrender.com/spotify';
 
+// Backup GPT API URL
+const apiUrlBackup = 'https://deku-rest-api-ywad.onrender.com/gpt4?prompt=';
+
 module.exports = {
   name: 'universal',
   description: 'Process user input and route to the appropriate API',
@@ -105,7 +108,8 @@ async function handleSpotify(senderId, args, pageAccessToken, sendMessage) {
 // Handler for GPT-4o API request
 async function handleGpt4o(senderId, args, pageAccessToken, sendMessage) {
   const prompt = args.join(' ');
-  const url = `${apiUrlGpt4o}${encodeURIComponent(prompt)}`;
+  let url = `${apiUrlGpt4o}${encodeURIComponent(prompt)}`;
+
   try {
     const response = await axios.get(url);
     let text = response.data.response;
@@ -115,25 +119,21 @@ async function handleGpt4o(senderId, args, pageAccessToken, sendMessage) {
 
     await sendResponseInChunks(senderId, text, pageAccessToken, sendMessage);
   } catch (error) {
-    console.error('Error calling GPT-4o API:', error);
-    await sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' }, pageAccessToken);
-  }
-}
+    console.error('Error calling primary GPT-4o API:', error);
 
-// Function to send response with an image
-async function sendResponseWithImage(senderId, message, imageUrl, pageAccessToken, sendMessage) {
-  const imageMessage = {
-    attachment: {
-      type: 'image',
-      payload: {
-        url: imageUrl,
-        is_reusable: true
-      }
+    // If primary API fails, use the backup API
+    url = `${apiUrlBackup}${encodeURIComponent(prompt)}&uid=${senderId}`;
+
+    try {
+      const response = await axios.get(url);
+      const text = response.data.gpt4;
+
+      await sendResponseInChunks(senderId, text, pageAccessToken, sendMessage);
+    } catch (backupError) {
+      console.error('Error calling backup GPT API:', backupError);
+      await sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' }, pageAccessToken);
     }
-  };
-
-  await sendMessage(senderId, imageMessage, pageAccessToken);
-  await sendResponseInChunks(senderId, message, pageAccessToken, sendMessage);
+  }
 }
 
 // Function to send response in chunks if necessary
