@@ -29,13 +29,15 @@ module.exports = {
 // Function to check if input contains Pinterest-related keywords
 function checkPinterest(input) {
   const pinterestKeywords = ['pinterest', 'picture', 'send me a picture', 'photo', 'photos', 'pictures', 'image', 'photograph', 'artwork', 'snapshot', 'portrait', 'painting', 'drawing'];
-  return pinterestKeywords.some(keyword => input.includes(keyword));
+  const regex = new RegExp(`\\b(${pinterestKeywords.join('|')})\\b`, 'i');
+  return regex.test(input);
 }
 
 // Function to check if input contains Spotify-related keywords
 function checkSpotify(input) {
-  const spotifyKeywords = ['spotify', 'song', 'music', 'sing', 'song', 'melody', 'tune', 'track', 'composition', 'rhythm', 'harmony'];
-  return spotifyKeywords.some(keyword => input.includes(keyword));
+  const spotifyKeywords = ['spotify', 'song', 'music', 'sing', 'melody', 'tune', 'track', 'composition', 'rhythm', 'harmony'];
+  const regex = new RegExp(`\\b(${spotifyKeywords.join('|')})\\b`, 'i');
+  return regex.test(input);
 }
 
 // Handler for Pinterest API request

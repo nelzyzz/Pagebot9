@@ -12,7 +12,7 @@ module.exports = {
 
     const commands = commandFiles.map(file => {
       const command = require(path.join(commandsDir, file));
-      return `⤜${command.name}\n  - ${command.description}\n  - Credits: ${command.author}`;
+      return `╰┈➤ ${command.name} ✧˚\n  ❃ ${command.description}\n  ❃ Credits: ${command.author}`;
     });
 
     const totalCommands = commandFiles.length;
@@ -27,7 +27,7 @@ module.exports = {
     const endIndex = Math.min(startIndex + commandsPerPage, totalCommands);
 
     const paginatedCommands = commands.slice(startIndex, endIndex);
-    const helpMessage = `Here are the available commands (Page ${page}/${totalPages}):\nTotal commands: ${totalCommands}\n\n${paginatedCommands.join('\n\n')}\n\nUse "help [page]" to see more commands.`;
+    const helpMessage = `《 ✦ Here are the available commands (Page ${page}/${totalPages}): ✦ 》\n\n${paginatedCommands.join('\n\n')}\n\n╰┈➤ ❝ Total commands: ${totalCommands} ❞\n\n「✦ Use "help [page]" to see more commands. ✦」`;
 
     sendMessage(senderId, { text: helpMessage }, pageAccessToken);
   }
