@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 // API URLs
-const apiUrlGpt4 = 'https://deku-rest-api-ywad.onrender.com/gpt4';
+const apiUrlGpt4o = 'https://api.kenliejugarap.com/freegpt4o128k/?question=';
 const apiUrlPinterest = 'https://deku-rest-api-ywad.onrender.com/api/pinterest';
 const apiUrlSpotify = 'https://deku-rest-api-ywad.onrender.com/spotify';
 
@@ -20,8 +20,8 @@ module.exports = {
       await sendMessage(senderId, { text: 'Please wait while we process your request...' }, pageAccessToken);
       await handleSpotify(senderId, args, pageAccessToken, sendMessage);
     } else {
-      // No specific command found, default to GPT-4
-      await handleGpt4(senderId, args, pageAccessToken, sendMessage);
+      // No specific command found, default to GPT-4o
+      await handleGpt4o(senderId, args, pageAccessToken, sendMessage);
     }
   }
 };
@@ -102,21 +102,20 @@ async function handleSpotify(senderId, args, pageAccessToken, sendMessage) {
   }
 }
 
-// Handler for GPT-4 API request
-async function handleGpt4(senderId, args, pageAccessToken, sendMessage) {
+// Handler for GPT-4o API request
+async function handleGpt4o(senderId, args, pageAccessToken, sendMessage) {
   const prompt = args.join(' ');
+  const url = `${apiUrlGpt4o}${encodeURIComponent(prompt)}`;
   try {
-    const response = await axios.get(apiUrlGpt4, {
-      params: { prompt, uid: senderId }
-    });
-    let text = response.data.gpt4;
+    const response = await axios.get(url);
+    let text = response.data.response;
 
-    // Remove initial 'Please wait...' message if present
-    text = text.replace('Please wait while we process your request...', '');
+    // Remove the unwanted text
+    text = text.replace(/Is this answer helpful to you\? Kindly click the link below\nhttps:\/\/click2donate\.kenliejugarap\.com\n\(Clicking the link and clicking any ads or button and wait for 30 seconds \(3 times\) everyday is a big donation and help to us to maintain the servers, last longer, and upgrade servers in the future\)/g, '');
 
     await sendResponseInChunks(senderId, text, pageAccessToken, sendMessage);
   } catch (error) {
-    console.error('Error calling GPT-4 API:', error);
+    console.error('Error calling GPT-4o API:', error);
     await sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' }, pageAccessToken);
   }
 }
