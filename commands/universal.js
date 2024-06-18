@@ -121,7 +121,7 @@ async function handleGpt4o(senderId, args, pageAccessToken, sendMessage) {
   } catch (error) {
     console.error('Error calling primary GPT-4o API:', error);
 
-    // If primary API fails, use the backup API
+   /* // If primary API fails, use the backup API
     url = `${apiUrlBackup}${encodeURIComponent(prompt)}&uid=${senderId}`;
 
     try {
@@ -132,7 +132,7 @@ async function handleGpt4o(senderId, args, pageAccessToken, sendMessage) {
     } catch (backupError) {
       console.error('Error calling backup GPT API:', backupError);
       await sendMessage(senderId, { text: 'Sorry, there was an error processing your request.' }, pageAccessToken);
-    }
+    } */
   }
 }
 
